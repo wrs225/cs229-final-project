@@ -7,7 +7,8 @@ from sklearn import tree
 import os
 import itertools
 import graphviz
-from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn import svm
+from sklearn.linear_model import LogisticRegression
 
 now = datetime.now()
 
@@ -46,10 +47,10 @@ for file_dict in file_arr:
         y = training_data_Y.append(simulation[sim_tick_num]['input'])
         num_examples += 1
 
-print("Training decision tree on {} examples!".format(num_examples))
+print("Training logreg tree on {} examples!".format(num_examples))
+clf = LogisticRegression()
 
-clf = HistGradientBoostingClassifier(max_iter=100).fit(training_data_X, training_data_Y)
-print(clf.score(training_data_X, training_data_Y))
+clf.fit(training_data_X, training_data_Y)
 env = gym.make("highway-fast-v0", render_mode='rgb_array')
 
 env.configure({

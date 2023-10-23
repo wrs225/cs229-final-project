@@ -38,14 +38,14 @@ for file_dict in file_arr:
     for sim_tick_num in range(1, len(simulation)):
       if(simulation[sim_tick_num]['reward'] > reward_coef):
         #x = training_data_X.append(list(itertools.chain.from_iterable(simulation[sim_tick_num - 1]['obs']))) #old obs space
+            
         x_input = list(itertools.chain.from_iterable(simulation[sim_tick_num - 1]['obs']))
         x = training_data_X.append(list(itertools.chain.from_iterable(x_input))) 
         y = training_data_Y.append(simulation[sim_tick_num]['input'])
         num_examples += 1
 
-print("Training decision tree on {} examples!".format(num_examples))
-
-clf = svm.SVC()
+print("Training svm on {} examples!".format(num_examples))
+clf = svm.SVC(class_weight='balanced')
 
 clf.fit(training_data_X, training_data_Y)
 env = gym.make("highway-fast-v0", render_mode='rgb_array')
