@@ -1,6 +1,15 @@
 import gymnasium as gym
 import highway_env
 from pynput import keyboard
+import json
+from datetime import datetime
+
+now = datetime.now()
+
+
+file = open('training_data_{}.json'.format(now.strftime("%m_%d_%Y_%H:%M:%S")),'w')
+
+
 
 
 class KeyObj:
@@ -18,6 +27,8 @@ def determine_pressed_arrow(key, keyobj):
     keyobj.keypressed = 0
   if key  == keyboard.Key.down:
     keyobj.keypressed = 2
+  if key == keyboard.Key.esc:
+    return False
 
 def on_release(key, keyobj):
   keyobj.keypressed = 1
@@ -33,14 +44,26 @@ listener = keyboard.Listener(on_press = lambda event: determine_pressed_arrow(ev
 
 listener.start()
 
-while True:
+out_json = {}
+i = 0
+while listener.running:
   done = truncated = False
   obs, info = env.reset()
-  print('new sim')
+  i += 1
+  simdata = []
   while not (done or truncated):
-    print(obs)
+    obs_dict = {}
+    obs_dict['input'] = KeyObj.keypressed
+    print(float(reward))
     obs, reward, done, truncated, info = env.step(KeyObj.keypressed)
-
+    obs_dict['obs'] = obs.tolist()
+    obs_dict['reward'] = float(reward)
+    simdata.append(obs_dict)
     env.render()
+  out_json[i] = simdata
+  
+json_object = json.dumps(out_json)
 
+file.write(json_object)
 
+file.close()
