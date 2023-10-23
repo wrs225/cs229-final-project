@@ -5,12 +5,12 @@ from stable_baselines3 import DQN, PPO
 from stable_baselines3.common.logger import configure
 
 # Sets up logger (ref notes in drive for link)
-model_path = "./highway_ppo_merge/" #just update this between models/scenarios
+model_path = "./highway_ppo_roundabout/" #just update this between models/scenarios
 log_path = model_path + "log/"
 save_path = model_path + "model/"
 logger = configure(log_path, ["stdout", "csv", "tensorboard"])
 
-env = gym.make("merge-v0", render_mode='rgb_array')
+env = gym.make("roundabout-v0", render_mode='rgb_array')
 # model = DQN('MlpPolicy', env,
 #               policy_kwargs=dict(net_arch=[256, 256]),
 #               learning_rate=5e-4,
