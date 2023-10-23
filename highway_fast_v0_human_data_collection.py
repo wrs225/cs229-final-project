@@ -54,8 +54,9 @@ while listener.running:
   while not (done or truncated):
     obs_dict = {}
     obs_dict['input'] = KeyObj.keypressed
-    print(float(reward))
+    
     obs, reward, done, truncated, info = env.step(KeyObj.keypressed)
+    print(float(reward))
     obs_dict['obs'] = obs.tolist()
     obs_dict['reward'] = float(reward)
     simdata.append(obs_dict)
