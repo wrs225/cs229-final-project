@@ -36,6 +36,7 @@ def on_release(key, keyobj):
 env = gym.make("highway-fast-v0", render_mode='rgb_array')
 
 env.configure({
+  #"observation":{"type":"OccupancyGrid"},
   "action":{"type":"DiscreteMetaAction"},
   "simulation_frequency": 20
 })
@@ -56,7 +57,7 @@ while listener.running:
     obs_dict['input'] = KeyObj.keypressed
     
     obs, reward, done, truncated, info = env.step(KeyObj.keypressed)
-    print(float(reward))
+    print(obs)
     obs_dict['obs'] = obs.tolist()
     obs_dict['reward'] = float(reward)
     simdata.append(obs_dict)
