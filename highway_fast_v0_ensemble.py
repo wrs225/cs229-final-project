@@ -50,13 +50,15 @@ env.configure({
   "simulation_frequency": 20
 })
 
-
-while True:
+epochs = 0
+reward_sum = 0
+while epochs < 1000:
   done = truncated = False
   obs, info = env.reset()
   while not (done or truncated):
     action = clf.predict([list(itertools.chain.from_iterable(obs))])
     obs, reward, done, truncated, info = env.step(action)
+  reward_sum += reward
 
-    env.render()
-  print(reward)
+  print("testing competed with an average reward of {} over {} simulations".format(reward_sum / 1000, 1000)) 
+  

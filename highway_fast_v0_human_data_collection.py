@@ -36,7 +36,8 @@ def on_release(key, keyobj):
 env = gym.make("highway-fast-v0", render_mode='rgb_array')
 
 env.configure({
-  "observation":{"type":"OccupancyGrid"},
+  "observation":{"type":"OccupancyGrid",
+                 "features": ["presence", "vx", "vy",]},
   "action":{"type":"DiscreteMetaAction"},
   "simulation_frequency": 20
 })
