@@ -36,7 +36,9 @@ for file_dict in file_arr:
   for simulation_num, simulation in file_dict.items():
     for sim_tick_num in range(1, len(simulation)):
       if(simulation[-1]['reward'] > reward_coef):
-        x = training_data_X.append(list(itertools.chain.from_iterable(simulation[sim_tick_num - 1]['obs'])))
+        #x = training_data_X.append(list(itertools.chain.from_iterable(simulation[sim_tick_num - 1]['obs']))) #old obs space
+        x_input = list(itertools.chain.from_iterable(simulation[sim_tick_num - 1]['obs']))
+        x = training_data_X.append(list(itertools.chain.from_iterable(x_input))) 
         y = training_data_Y.append(simulation[sim_tick_num]['input'])
       
 
@@ -51,6 +53,7 @@ graph.render("highway")
 env = gym.make("highway-fast-v0", render_mode='rgb_array')
 
 env.configure({
+    "observation":{"type":"OccupancyGrid"},
   "action":{"type":"DiscreteMetaAction"},
   "simulation_frequency": 20
 })
@@ -60,7 +63,8 @@ while True:
   done = truncated = False
   obs, info = env.reset()
   while not (done or truncated):
-    action = clf.predict([list(itertools.chain.from_iterable(obs))])
+    inner = list(itertools.chain.from_iterable(obs))
+    action = clf.predict([list(itertools.chain.from_iterable(inner))])
     obs, reward, done, truncated, info = env.step(action)
 
     env.render()
