@@ -22,7 +22,7 @@ for filename in os.listdir(os.getcwd()):
     file_string = file.read()
     if(file_string == None):
       print("WARN: Json File {} has nothing in it".format(filename))
-      pass
+      continue
 
     file.close()
     data = json.loads(file_string)
@@ -36,8 +36,11 @@ num_examples = 0
 for file_dict in file_arr:
   for simulation_num, simulation in file_dict.items():
     for sim_tick_num in range(1, len(simulation)):
-      if(simulation[-1]['reward'] > reward_coef and not (simulation[sim_tick_num]['input'] == 1)):
+      if(simulation[sim_tick_num]['reward'] > reward_coef):
         #x = training_data_X.append(list(itertools.chain.from_iterable(simulation[sim_tick_num - 1]['obs']))) #old obs space
+        if(simulation[sim_tick_num]['input'] == 1 and num_examples % 2 != 0):
+          continue
+            
         x_input = list(itertools.chain.from_iterable(simulation[sim_tick_num - 1]['obs']))
         x = training_data_X.append(list(itertools.chain.from_iterable(x_input))) 
         y = training_data_Y.append(simulation[sim_tick_num]['input'])
