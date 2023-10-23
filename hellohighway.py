@@ -7,8 +7,8 @@ import time
 
 # Sets up logger (ref notes in drive for more info)
 #   Update next two lines between models/scenarios
-scenario = "intersection-v0"
-model_path = "./highway_ppo_intersection_v0/" 
+scenario = "racetrack-v0"
+model_path = "./highway_ppo_racetrack/" 
 
 log_path = model_path + "log/"
 save_path = model_path + "model/"
