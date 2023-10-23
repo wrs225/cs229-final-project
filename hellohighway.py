@@ -1,8 +1,14 @@
+#!/usr/bin/env/python
 import gymnasium as gym
 import highway_env
 from stable_baselines3 import DQN
+from stable_baselines3.common.logger import configure
 
-env = gym.make("highway-fast-v0", render_mode='rgb_array')
+# Sets up logger
+data_path = "./highway_dqn_merge[0]/log/"
+logger = configure(data_path, ["stdout", "csv", "tensorboard"])
+
+env = gym.make("merge-v0", render_mode='rgb_array')
 model = DQN('MlpPolicy', env,
               policy_kwargs=dict(net_arch=[256, 256]),
               learning_rate=5e-4,
@@ -14,12 +20,14 @@ model = DQN('MlpPolicy', env,
               gradient_steps=1,
               target_update_interval=50,
               verbose=1,
-              tensorboard_log="highway_dqn/")
-#model.learn(int(2e4))
-#model.save("highway_dqn/model")
+              stats_window_size=100,
+              tensorboard_log="highway_dqn_merge[0]/")
+model.set_logger(logger)  #sets new logger, overwriting tensorboard_log config
+model.learn(int(2e4))
+model.save("highway_dqn_merge[0]/model")
 
 # Load and test saved model
-model = DQN.load("highway_dqn/model")
+model = DQN.load("highway_dqn_merge[0]/model")
 while True:
   done = truncated = False
   obs, info = env.reset()
