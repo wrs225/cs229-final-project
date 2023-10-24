@@ -7,8 +7,8 @@ import time
 
 # Sets up logger (ref notes in drive for more info)
 #   Update next two lines between models/scenarios
-scenario = "racetrack-v0"
-model_path = "./highway_ppo_racetrack/" 
+scenario = "highway-fast-v0"
+model_path = "./highway_highway-fast/" 
 
 log_path = model_path + "log/"
 save_path = model_path + "model/"
@@ -38,16 +38,26 @@ model = PPO('MlpPolicy', env,
               tensorboard_log=model_path)
 model.set_logger(logger)  #sets new logger, overwriting tensorboard_log config
 start_time = time.time()
-model.learn(int(2e4))
+model.learn(int(1e3))
 model.save(save_path)
 print("------- %.2f seconds to train -------" % (time.time() - start_time))
 
 # Load and test saved model
+# model = PPO.load(save_path)
+# while True:
+#   done = truncated = False
+#   obs, info = env.reset()
+#   while not (done or truncated):
+#     action, _states = model.predict(obs, deterministic=True)
+#     obs, reward, done, truncated, info = env.step(action)
+#     env.render()
+episodes = 10
 model = PPO.load(save_path)
-while True:
+while eps in range(episodes):
   done = truncated = False
   obs, info = env.reset()
   while not (done or truncated):
     action, _states = model.predict(obs, deterministic=True)
     obs, reward, done, truncated, info = env.step(action)
     env.render()
+    print(rewards)
