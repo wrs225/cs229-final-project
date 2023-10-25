@@ -8,6 +8,10 @@ import os
 import itertools
 import graphviz
 from sklearn import svm
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+import math
+import csv
 
 now = datetime.now()
 
@@ -29,7 +33,6 @@ for filename in os.listdir(os.getcwd()):
 
     file_arr.append(data)
 
-
 training_data_X = []
 training_data_Y = []
 num_examples = 0
@@ -44,35 +47,54 @@ for file_dict in file_arr:
         y = training_data_Y.append(simulation[sim_tick_num]['input'])
         num_examples += 1
 
-print("Training svm on {} examples!".format(num_examples))
-clf = svm.SVC(class_weight='balanced')
+train_example_sweep_iterator = 0
+iterations = math.trunc(math.log2(num_examples))
+print("sweeping exponentially 2^n up to n={}".format(iterations))
 
-clf.fit(training_data_X, training_data_Y)
-env = gym.make("highway-fast-v0", render_mode='rgb_array')
+file = open('svm_data.csv', 'w', newline='')
+writer = csv.writer(file,delimiter=' ', quotechar='|')
+writer.writerow(['data_points','training_accuracy','simulation_reward'])
+file.close()
 
-env.configure({
-    "observation":{"type":"OccupancyGrid",
-                   "features": ["presence", "vx", "vy",]},
-  "action":{"type":"DiscreteMetaAction"},
-  "simulation_frequency": 5
-})
+for i in range(4,iterations + 1):
+  print("Training svm on {} examples!".format(2**i))
+  #clf = make_pipeline(StandardScaler(),svm.SVC(class_weight='balanced', cache_size=1000))
+  clf = svm.SVC(class_weight='balanced', cache_size=1000)
+  clf.fit(training_data_X[0:2**i], training_data_Y[0:2**i])
+  env = gym.make("highway-fast-v0", render_mode='rgb_array')
 
-epochs = 0
-reward_sum = 0
-NUM_EPOCHS = 100
-while epochs < NUM_EPOCHS:
-  done = truncated = False
-  obs, info = env.reset()
-  while not (done or truncated):
-    inner = list(itertools.chain.from_iterable(obs))
-    #print(len(list(itertools.chain.from_iterable(inner))))
-    action = clf.predict([list(itertools.chain.from_iterable(inner))])
-    obs, reward, done, truncated, info = env.step(action)
+  env.configure({
+      "observation":{"type":"OccupancyGrid",
+                     "features": ["presence", "vx", "vy",]},
+    "action":{"type":"DiscreteMetaAction"},
+    "simulation_frequency": 5
+  })
+  train_accuracy = clf.score(training_data_X[0:2**i],training_data_Y[0:2**i])
+  print("svm trained with accuracy {} on training set".format(train_accuracy))
+  epochs = 0
+  reward_sum = 0
+  NUM_EPOCHS = 1000
+  while epochs < NUM_EPOCHS:
+    done = truncated = False
+    obs, info = env.reset()
+    while not (done or truncated):
+      inner = list(itertools.chain.from_iterable(obs))
+      #print(len(list(itertools.chain.from_iterable(inner))))
+      action = clf.predict([list(itertools.chain.from_iterable(inner))])
+      obs, reward, done, truncated, info = env.step(action)
 
-    env.render()
-  reward_sum += reward
-  epochs += 1
-  print(epochs)
+      env.render()
+    reward_sum += reward
+    epochs += 1
+    print(epochs)
+  
+  file = open('svm_data.csv', 'a', newline='')
+  writer = csv.writer(file,delimiter=' ', quotechar='|')
+  writer.writerow([2**i,train_accuracy,reward_sum/NUM_EPOCHS])
+  file.close()
 
-print("testing competed with an average reward of {} over {} simulations".format(reward_sum / NUM_EPOCHS, NUM_EPOCHS)) 
+  print("svm trained with accuracy {} on training set".format(train_accuracy))
+  print("testing competed with an average reward of {} over {} simulations".format(reward_sum / NUM_EPOCHS, NUM_EPOCHS))
+
+
   
