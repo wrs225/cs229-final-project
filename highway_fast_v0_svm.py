@@ -97,4 +97,3 @@ for i in range(4,iterations + 1):
   print("testing competed with an average reward of {} over {} simulations".format(reward_sum / NUM_EPOCHS, NUM_EPOCHS))
 
 
-  
