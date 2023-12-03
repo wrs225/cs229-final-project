@@ -7,7 +7,7 @@ from datetime import datetime
 now = datetime.now()
 
 
-file = open('training_data_{}.json'.format(now.strftime("%m_%d_%Y_%H:%M:%S")),'w')
+file = open('./data_highway_fast_v0/training_data_{}.json'.format(now.strftime("%m_%d_%Y_%H_%M_%S")),'w')
 
 
 
