@@ -9,43 +9,14 @@ import itertools
 import graphviz
 from sklearn import svm
 from sklearn.linear_model import LogisticRegression
+import utils
 
 now = datetime.now()
 
 
-reward_coef = 0.7
+training_data_X, training_data_Y = utils.read_data_json('data_highway_fast_v0')
 
-file_arr = []
-for filename in os.listdir(os.getcwd()):
-  if 'training_data' in filename:
-    print(filename)
-    file = open(filename)
-    file_string = file.read()
-    if(file_string == None):
-      print("WARN: Json File {} has nothing in it".format(filename))
-      pass
-
-    file.close()
-    data = json.loads(file_string)
-
-    file_arr.append(data)
-
-
-training_data_X = []
-training_data_Y = []
-num_examples = 0
-for file_dict in file_arr:
-  for simulation_num, simulation in file_dict.items():
-    for sim_tick_num in range(1, len(simulation)):
-      if(simulation[sim_tick_num]['reward'] > reward_coef):
-
-            
-        x_input = list(itertools.chain.from_iterable(simulation[sim_tick_num - 1]['obs']))
-        x = training_data_X.append(list(itertools.chain.from_iterable(x_input))) 
-        y = training_data_Y.append(simulation[sim_tick_num]['input'])
-        num_examples += 1
-
-print("Training logreg tree on {} examples!".format(num_examples))
+print("Training logreg tree on {} examples!".format(len(training_data_X)))
 clf = LogisticRegression(class_weight='balanced')
 
 clf.fit(training_data_X, training_data_Y)
