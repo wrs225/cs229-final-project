@@ -1,5 +1,5 @@
 from sklearn import tree
-import utils
+import utils_highway as utils
 import matplotlib.pyplot as plt
 import tqdm
 import numpy as np
@@ -37,6 +37,6 @@ if(True):
   plt.show()
 
 clf = tree.DecisionTreeClassifier(class_weight="balanced",ccp_alpha=0.0002)
-results = utils.paralleized_data_sweep(clf, "basic_decision_tree", training_data_X, training_data_Y, NUM_THREADS, starting_datas = 10)
+results = utils.parallelized_data_sweep(clf, "basic_decision_tree", training_data_X, training_data_Y, NUM_THREADS, starting_datas = 10)
 
 plt.plot(results)

@@ -10,8 +10,6 @@ now = datetime.now()
 file = open('./data_highway_fast_v0/training_data_{}.json'.format(now.strftime("%m_%d_%Y_%H_%M_%S")),'w')
 
 
-
-
 class KeyObj:
   keypressed = 1
 
