@@ -3,6 +3,13 @@ import json
 import itertools
 import os
 import numpy as np
+import gymnasium as gym
+import highway_env
+import math
+import csv
+from multiprocess import Pool
+import tqdm
+
 
 
 def read_data_json(folder_name, reward_coef = 0.7):
@@ -93,6 +100,70 @@ def convert_json_to_csv(folder_name, file_name, reward_coef = 0.7):
     print(np.array(training_data_Y)[:,None].shape)
     np.savetxt(os.path.join(os.path.join(os.getcwd(), folder_name),file_name),
                np.column_stack( (np.array(training_data_X), np.array(training_data_Y)) ) )
+    
+def paralleized_data_sweep(classifier_class, name, training_data_X, training_data_Y, num_threads):
+    train_example_sweep_iterator = 0
+    iterations = math.trunc(math.log2(len(training_data_X)))
+    print("sweeping exponentially 2^n up to n={}".format(iterations))
+
+    file = open('{}_data.csv'.format(name), 'w', newline='')
+    writer = csv.writer(file,delimiter=' ', quotechar='|')
+    writer.writerow(['data_points','training_accuracy','simulation_reward'])
+    file.close()
+
+    for i in range(4,iterations + 1):
+        print("Training {} on {} examples!".format(name, 2**i))
+        #clf = make_pipeline(StandardScaler(),svm.SVC(class_weight='balanced', cache_size=1000))
+        clf = classifier_class(class_weight='balanced')
+        clf.fit(training_data_X[0:2**i], training_data_Y[0:2**i])
+
+        train_accuracy = clf.score(training_data_X[0:2**i],training_data_Y[0:2**i])
+        print("{} trained with accuracy {} on training set".format(name, train_accuracy))
+
+
+        NUM_EPOCHS = 1000
+
+        def parallelized_simulaton(e):
+        
+            env = gym.make("highway-fast-v0", config= {
+                "observation":{"type":"OccupancyGrid",
+                               "features": ["presence", "vx", "vy",]},
+              "action":{"type":"DiscreteMetaAction"},
+              "simulation_frequency": 5
+            })
+
+
+            epochs = 0
+            reward_sum = 0
+            NUM_EPOCHS = 5
+            while epochs < NUM_EPOCHS:
+                done = truncated = False
+                obs, info = env.reset()
+                while not (done or truncated):
+                    inner = list(itertools.chain.from_iterable(obs))
+                    #print(len(list(itertools.chain.from_iterable(inner))))
+                    action = clf.predict([list(itertools.chain.from_iterable(inner))])
+                    obs, reward, done, truncated, info = env.step(action)
+
+                #env.render()
+                reward_sum += reward
+                epochs += 1
+
+            return reward_sum
+
+        with Pool(num_threads) as p:
+            clf_list = [clf] * (NUM_EPOCHS // 5)
+            ep = range(NUM_EPOCHS // 5)
+
+            reward_sum = sum(list(tqdm.tqdm(p.imap_unordered(parallelized_simulaton,ep), total=len(ep))))
+
+        file = open('{}_data.csv'.format(name), 'a', newline='')
+        writer = csv.writer(file,delimiter=' ', quotechar='|')
+        writer.writerow([2**i,train_accuracy,reward_sum/NUM_EPOCHS])
+        file.close()
+
+        print("{} trained with accuracy {} on training set".format(name, train_accuracy))
+        print("testing competed with an average reward of {} over {} simulations".format(reward_sum / NUM_EPOCHS, NUM_EPOCHS))
 
 if __name__ == "__main__":
     #print('here')
