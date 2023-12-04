@@ -6,9 +6,7 @@ from stable_baselines3.common.logger import configure
 import time
 import csv
 
-# TODO: Create a dictionary of models and scenarios, and loop through them
-#   Use f"{model_dir}/{scenario_dir}" to create paths
-#   https://www.youtube.com/watch?v=dLP-2Y6yu70&ab_channel=sentdex, from 1:33
+
 # Initializes dictionary of all models and scenarios
 model_type = ["dqn", "ppo"]
 scenario_type = ["highway-fast-v0", 'merge-v0', 'roundabout-v0', 'intersection-v0',
@@ -36,13 +34,38 @@ def set_path(model_name, scenario_name):
 
 
 def create_environment(scenario_name):
-    return gym.make(scenario_name, render_mode='rgb_array')
+    env = gym.make(scenario_name, render_mode='rgb_array')
+    # env.configure({
+    #     "observation":{
+    #         "type":"OccupancyGrid",
+    #         "features": ["presence", "vx", "vy",]},
+    #     "action":{"type":"DiscreteMetaAction"},
+    #     "simulation_frequency": 20
+    # })
+    # env.configure({
+    #     "observation": {
+    #         "type": "OccupancyGrid",
+    #         "vehicles_count": 15,
+    #         "features": ["presence", "x", "y", "vx", "vy", "cos_h", "sin_h"],
+    #         "features_range": {
+    #             "x": [-100, 100],
+    #             "y": [-100, 100],
+    #             "vx": [-20, 20],
+    #             "vy": [-20, 20]
+    #         },
+    #         "grid_size": [[-27.5, 27.5], [-27.5, 27.5]],
+    #         "grid_step": [5, 5],
+    #         "absolute": False
+    #     }
+    # })
+    
+    return env
 
 
 # Sets up the model with selected Gym environment
 def select_model(model_name, scenario_name):
     env = create_environment(scenario_name)
-    
+
     if model_name == "dqn":
         model = DQN('MlpPolicy', env,
 			policy_kwargs=dict(net_arch=[256, 256]),
@@ -82,8 +105,9 @@ def train_model(model_name, scenario_name):
     start_time = time.time()
     print("Starting training for %s in %s..." % (model_name, scenario_name))
     model.learn(int(2e4))
-    model.save(save_path)
     print("------- %.2f seconds to train -------" % (time.time() - start_time))
+    
+    model.save(save_path)
     
     return model, save_path, log_path
 
@@ -97,7 +121,7 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=100):
     else:
         raise Exception("Invalid model name")
     
-    env = gym.make(scenario_name, render_mode='rgb_array')
+    env = create_environment(scenario_name)
     
     sum_reward = 0.0
     mean_reward = 0.0
@@ -106,10 +130,22 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=100):
     for ep in range(episodes):
         done = truncated = False
         obs, info = env.reset()
+        c = 0
         while not (done or truncated):
+            
+            # TODO: Use test data to evaluate model
+            # 0) Load test data from JSON file
+            # 1) Create numpy array using test data for each input
+            # 2) Predict action using model.predict()
+            # 3) Use action to step through environment
+            # 4) Repeat until done or truncated
+
+            # print("ep: ", ep, "\tstep: ", c, "\tobservation: ", obs)
+            c += 1
+
             action, _states = model.predict(obs, deterministic=True)
             obs, reward, done, truncated, info = env.step(action)
-            # env.render()
+            env.render()
         
         sum_reward += reward
         mean_reward = sum_reward/(ep+1)
@@ -125,18 +161,20 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=100):
 
 def main():
     # To run specific models/scenarios, uncomment the following lines 
-    # model_trained, save_path, log_path = train_model(model_type[0], scenario_type[0])
-    # test_model(model_type[0], scenario_type[0], save_path, log_path, episodes=100)
-    # print("complete!")
+    model_trained, save_path, log_path = train_model(model_type[0], scenario_type[0]) #commented out to test w/o o/w trained models
+    model_path, log_path, save_path = set_path(model_type[0], scenario_type[0])         #added to test w/o o/w trained models
+    test_model(model_type[0], scenario_type[0], save_path, log_path, episodes=100)
+    print("complete!")
     
     # To run all the models and scenarios, uncomment the following lines
-    start_all_time = time.time()
-    for model in model_type:
-        for scenario in scenario_type:
-            model_trained, save_path, log_path = train_model(model, scenario)
-            test_model(model, scenario, save_path, log_path, episodes=100)
-            print("completed ", model, " on ", scenario)
-    print("------- %.2f seconds to train and test all -------" % (time.time() - start_all_time))
+    # start_all_time = time.time()
+    # for model in model_type:
+    #     for scenario in scenario_type:
+    #         # model_trained, save_path, log_path = train_model(model, scenario) #commented out to test w/o o/w trained models
+    #         model_path, log_path, save_path = set_path(model, scenario)         #added to test w/o o/w trained models
+    #         test_model(model, scenario, save_path, log_path, episodes=100)
+    #         print("completed ", model, " on ", scenario)
+    # print("------- %.2f seconds to train and test all -------" % (time.time() - start_all_time))
     
     return 0
 
