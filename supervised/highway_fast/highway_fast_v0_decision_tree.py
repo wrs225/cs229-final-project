@@ -5,6 +5,31 @@ import tqdm
 import numpy as np
 from multiprocess import Pool
 
+#Possible ways to improve:
+## PCA
+# from sklearn.decomposition import PCA
+# pca = PCA(n_components=your_value)
+# training_data_X_pca = pca.fit_transform(training_data_X)
+# test_data_X_pca = pca.transform(test_data_X)
+# clf = tree.DecisionTreeClassifier(class_weight="balanced", ccp_alpha=your_value)
+# clf.fit(training_data_X_pca, training_data_Y)
+
+## ICA
+# from sklearn.decomposition import FastICA
+# ica = FastICA(n_components=your_value)
+# training_data_X_ica = ica.fit_transform(training_data_X)
+# test_data_X_ica = ica.transform(test_data_X)
+# clf = tree.DecisionTreeClassifier(class_weight="balanced", ccp_alpha=your_value)
+# clf.fit(training_data_X_ica, training_data_Y)
+
+## FEATURE SELECTION
+# from sklearn.feature_selection import SelectKBest, f_classif
+# selector = SelectKBest(f_classif, k=your_value)
+# training_data_X_selected = selector.fit_transform(training_data_X, training_data_Y)
+# test_data_X_selected = selector.transform(test_data_X)
+# clf = tree.DecisionTreeClassifier(class_weight="balanced", ccp_alpha=your_value)
+# clf.fit(training_data_X_selected, training_data_Y)
+
 
 NUM_THREADS = 8 #Change this according to how many threads you can spare
 
@@ -18,6 +43,7 @@ if(True):
   path = clf.cost_complexity_pruning_path(training_data_X, training_data_Y)
   ccp_alphas, impurities = path.ccp_alphas[:-1:len(path.ccp_alphas)//15], path.impurities
   clfs = []
+
   for ccp_alpha in tqdm.tqdm(ccp_alphas):
       clf = tree.DecisionTreeClassifier(random_state=0, ccp_alpha=ccp_alpha)
       clf.fit(training_data_X, training_data_Y)
