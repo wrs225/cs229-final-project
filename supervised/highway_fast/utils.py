@@ -101,7 +101,7 @@ def convert_json_to_csv(folder_name, file_name, reward_coef = 0.7):
     np.savetxt(os.path.join(os.path.join(os.getcwd(), folder_name),file_name),
                np.column_stack( (np.array(training_data_X), np.array(training_data_Y)) ) )
     
-def paralleized_data_sweep(classifier_class, name, training_data_X, training_data_Y, num_threads):
+def paralleized_data_sweep(clf, name, training_data_X, training_data_Y, num_threads,starting_datas=4):
     train_example_sweep_iterator = 0
     iterations = math.trunc(math.log2(len(training_data_X)))
     print("sweeping exponentially 2^n up to n={}".format(iterations))
@@ -111,10 +111,11 @@ def paralleized_data_sweep(classifier_class, name, training_data_X, training_dat
     writer.writerow(['data_points','training_accuracy','simulation_reward'])
     file.close()
 
-    for i in range(4,iterations + 1):
+    output_data_points = np.array(range(starting_datas,iterations+1))
+    output_reward = np.zeros(len(range(starting_datas,iterations+1)))
+    for i in range(starting_datas,iterations + 1):
         print("Training {} on {} examples!".format(name, 2**i))
         #clf = make_pipeline(StandardScaler(),svm.SVC(class_weight='balanced', cache_size=1000))
-        clf = classifier_class(class_weight='balanced')
         clf.fit(training_data_X[0:2**i], training_data_Y[0:2**i])
 
         train_accuracy = clf.score(training_data_X[0:2**i],training_data_Y[0:2**i])
@@ -156,14 +157,18 @@ def paralleized_data_sweep(classifier_class, name, training_data_X, training_dat
             ep = range(NUM_EPOCHS // 5)
 
             reward_sum = sum(list(tqdm.tqdm(p.imap_unordered(parallelized_simulaton,ep), total=len(ep))))
-
+        
+        output_reward[i] = reward_sum/NUM_EPOCHS
         file = open('{}_data.csv'.format(name), 'a', newline='')
         writer = csv.writer(file,delimiter=' ', quotechar='|')
-        writer.writerow([2**i,train_accuracy,reward_sum/NUM_EPOCHS])
+        writer.writerow([2**i,train_accuracy,output_reward[i]])
         file.close()
 
         print("{} trained with accuracy {} on training set".format(name, train_accuracy))
         print("testing competed with an average reward of {} over {} simulations".format(reward_sum / NUM_EPOCHS, NUM_EPOCHS))
+
+    return output_data_points, output_reward
+
 
 if __name__ == "__main__":
     #print('here')
