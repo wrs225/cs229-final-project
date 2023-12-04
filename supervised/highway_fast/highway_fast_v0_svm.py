@@ -1,48 +1,21 @@
-import gymnasium as gym
-import highway_env
-
-from datetime import datetime
-from sklearn import tree
-import os
-import itertools
-import graphviz
-from sklearn import svm
 import utils
+import matplotlib.pyplot as plt
+import tqdm
+import numpy as np
+from multiprocess import Pool
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
 
-now = datetime.now()
+
+NUM_THREADS = 8 #Change this according to how many threads you can spare
+
+training_data_X, training_data_Y = utils.read_data_csv('data_highway_fast_v0','data_highway_fast.csv')
+test_data_X, test_data_Y = utils.read_data_csv('data_highway_fast_v0','data_highway_test.csv')
 
 
-training_data_X, training_data_Y = utils.read_data_json('data_highway_fast_v0')
+clf = make_pipeline(StandardScaler(),SVC(class_weight="balanced",cache_size = 1000))
+results = utils.paralleized_data_sweep(clf, "svm_sigmoid", training_data_X, training_data_Y, NUM_THREADS, starting_datas = 10)
 
-print("Training svm on {} examples!".format(len(training_data_X)))
-clf = svm.SVC(class_weight='balanced')
-
-clf.fit(training_data_X, training_data_Y)
-env = gym.make("highway-fast-v0", render_mode='rgb_array')
-
-env.configure({
-    "observation":{"type":"OccupancyGrid",
-                   "features": ["presence", "vx", "vy",]},
-  "action":{"type":"DiscreteMetaAction"},
-  "simulation_frequency": 5
-})
-
-epochs = 0
-reward_sum = 0
-NUM_EPOCHS = 100
-while epochs < NUM_EPOCHS:
-  done = truncated = False
-  obs, info = env.reset()
-  while not (done or truncated):
-    inner = list(itertools.chain.from_iterable(obs))
-    #print(len(list(itertools.chain.from_iterable(inner))))
-    action = clf.predict([list(itertools.chain.from_iterable(inner))])
-    obs, reward, done, truncated, info = env.step(action)
-
-    env.render()
-  reward_sum += reward
-  epochs += 1
-  print(epochs)
-
-print("testing competed with an average reward of {} over {} simulations".format(reward_sum / NUM_EPOCHS, NUM_EPOCHS)) 
-  
+plt.plot(results[0],results[1])
+plt.show()

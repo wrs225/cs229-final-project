@@ -44,6 +44,9 @@ def read_data_json(folder_name, reward_coef = 0.7):
             x = training_data_X.append(list(itertools.chain.from_iterable(x_input))) 
             y = training_data_Y.append(simulation[sim_tick_num]['input'])
             num_examples += 1
+    
+    print(training_data_X.shape())
+
     return training_data_X, training_data_Y
 
 def read_data_csv(folder_name, file_name):
@@ -158,10 +161,10 @@ def paralleized_data_sweep(clf, name, training_data_X, training_data_Y, num_thre
 
             reward_sum = sum(list(tqdm.tqdm(p.imap_unordered(parallelized_simulaton,ep), total=len(ep))))
         
-        output_reward[i] = reward_sum/NUM_EPOCHS
+        output_reward[i - starting_datas] = reward_sum/NUM_EPOCHS
         file = open('{}_data.csv'.format(name), 'a', newline='')
         writer = csv.writer(file,delimiter=' ', quotechar='|')
-        writer.writerow([2**i,train_accuracy,output_reward[i]])
+        writer.writerow([2**i,train_accuracy,output_reward[i - starting_datas]])
         file.close()
 
         print("{} trained with accuracy {} on training set".format(name, train_accuracy))
@@ -171,6 +174,7 @@ def paralleized_data_sweep(clf, name, training_data_X, training_data_Y, num_thre
 
 
 if __name__ == "__main__":
+    read_data_json('data_highway_fast_v0'):
     #print('here')
     #convert_json_to_csv('data_highway_fast_v0','data_highway_fast.csv')
     #extract_test_data('data_highway_fast_v0','data_highway_fast.csv','data_highway_test.csv')
