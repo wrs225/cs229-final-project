@@ -174,7 +174,7 @@ def paralleized_data_sweep(clf, name, training_data_X, training_data_Y, num_thre
 
 
 if __name__ == "__main__":
-    read_data_json('data_highway_fast_v0'):
+    read_data_json('data_highway_fast_v0')
     #print('here')
     #convert_json_to_csv('data_highway_fast_v0','data_highway_fast.csv')
     #extract_test_data('data_highway_fast_v0','data_highway_fast.csv','data_highway_test.csv')
