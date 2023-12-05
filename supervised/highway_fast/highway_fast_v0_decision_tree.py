@@ -30,14 +30,7 @@ from multiprocess import Pool
 # clf = tree.DecisionTreeClassifier(class_weight="balanced", ccp_alpha=your_value)
 # clf.fit(training_data_X_selected, training_data_Y)
 
-
-NUM_THREADS = 8 #Change this according to how many threads you can spare
-
-training_data_X, training_data_Y = utils.read_data_csv('data_highway_fast_v0','data_highway_fast.csv')
-test_data_X, test_data_Y = utils.read_data_csv('data_highway_fast_v0','data_highway_test.csv')
-
-
-if(True):
+if(False):
   clf = tree.DecisionTreeClassifier(class_weight="balanced")
 
   path = clf.cost_complexity_pruning_path(training_data_X, training_data_Y)
@@ -62,7 +55,10 @@ if(True):
   ax.legend()
   plt.show()
 
-clf = tree.DecisionTreeClassifier(class_weight="balanced",ccp_alpha=0.0002)
-results = utils.parallelized_data_sweep(clf, "basic_decision_tree", training_data_X, training_data_Y, NUM_THREADS, starting_datas = 10)
-
-plt.plot(results)
+if __name__ == "__main__":
+   NUM_THREADS = 8 #Change this according to how many threads you can spare
+   training_data_X, training_data_Y = utils.read_data_csv('data_highway_fast_v0','data_highway_fast.csv')
+   test_data_X, test_data_Y = utils.read_data_csv('data_highway_fast_v0','data_highway_test.csv')
+   clf = tree.DecisionTreeClassifier(class_weight="balanced",ccp_alpha=0.0002)
+   results = utils.parallelized_data_sweep(clf, "basic_decision_tree", training_data_X, training_data_Y, NUM_THREADS, starting_datas = 10)
+   plt.plot(results)
