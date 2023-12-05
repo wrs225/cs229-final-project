@@ -14,7 +14,7 @@ import utils
 now = datetime.now()
 
 
-training_data_X, training_data_Y = utils.read_data_json('data_highway_fast_v0')
+training_data_X, training_data_Y = utils.read_data_csv('data_highway_fast_v0','data_highway_fast.csv')
 
 print("Training logreg tree on {} examples!".format(len(training_data_X)))
 clf = LogisticRegression(class_weight='balanced')

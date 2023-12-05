@@ -12,7 +12,7 @@ training_data_X, training_data_Y = utils.read_data_csv('data_highway_fast_v0','d
 test_data_X, test_data_Y = utils.read_data_csv('data_highway_fast_v0','data_highway_test.csv')
 
 
-if(True):
+if(False):
   clf = tree.DecisionTreeClassifier(class_weight="balanced")
 
   path = clf.cost_complexity_pruning_path(training_data_X, training_data_Y)
