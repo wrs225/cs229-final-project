@@ -1,5 +1,5 @@
 from sklearn import tree
-import utils_highway as utils
+import utils
 import matplotlib.pyplot as plt
 import tqdm
 import numpy as np
