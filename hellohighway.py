@@ -5,6 +5,7 @@ from stable_baselines3 import DQN, PPO
 from stable_baselines3.common.logger import configure
 import time
 import csv
+import numpy as np
 
 
 # Initializes dictionary of all models and scenarios
@@ -47,6 +48,10 @@ def set_path(model_name, scenario_name):
 
 def create_environment(scenario_name):
     env = gym.make(scenario_name, render_mode='rgb_array')
+    env.configure({
+        "action":{"type":"DiscreteMetaAction"},
+        "simulation_frequency": 20
+    })
     # env.configure({
     #     "observation":{
     #         "type":"OccupancyGrid",
@@ -141,14 +146,20 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=100, ren
     
     if test_csv:
         test_data = read_csv(log_path+test_csv)
+        # print("test_data=", test_data, "\tlen=", len(test_data), "datatype=", type(test_data))
         
         for ep in test_data:
             done = truncated = False
-            obs = ep
+            obs = np.fromstring(ep[0], dtype=float, sep=' ')
+            print("ep=", ep, "\tobs_init=", obs, "\tlen=", len(obs), "datatype=", type(obs))
+            obs = np.array(obs[1:26]).reshape(5, 5)
+            
+            obs = env.reset()
             
             while not (done or truncated):
                 action, _states = model.predict(obs, deterministic=True)
                 obs, reward, done, truncated = env.step(action)
+                print("ep=", ep, "\tobs=", obs)
                 
                 if render:
                     env.render()
@@ -162,6 +173,7 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=100, ren
         for ep in range(episodes):
             done = truncated = False
             obs, info = env.reset()
+            print("\tobs_init=", obs)
 
             while not (done or truncated):
                 
@@ -173,7 +185,8 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=100, ren
                 # 4) Repeat until done or truncated
                 action, _states = model.predict(obs, deterministic=True)
                 obs, reward, done, truncated, info = env.step(action)
-                
+                print("ep=", ep, "\tobs=", obs)
+                # time.sleep(0.5)
                 if render:
                     env.render()
             
@@ -196,6 +209,7 @@ def main():
     # test_model(model_type[0], scenario_type[0], save_path, log_path, episodes=100)
     test_model(model_type[0], scenario_type[1], save_path, log_path, episodes=100, render=False, 
                test_csv='data_merge_test')
+    # test_model(model_type[0], scenario_type[1], save_path, log_path, episodes=100, render=True)
     print("complete!")
     
     # To run all the models and scenarios, uncomment the following lines:
