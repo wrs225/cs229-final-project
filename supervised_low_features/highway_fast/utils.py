@@ -104,7 +104,7 @@ def convert_json_to_csv(folder_name, file_name, reward_coef = 0.7):
     np.savetxt(os.path.join(os.path.join(os.getcwd(), folder_name),file_name),
                np.column_stack( (np.array(training_data_X), np.array(training_data_Y)) ) )
     
-def paralleized_data_sweep(clf, name, training_data_X, training_data_Y, num_threads,starting_datas=4):
+def parallelized_data_sweep(clf, name, training_data_X, training_data_Y, num_threads,starting_datas=4):
     train_example_sweep_iterator = 0
     iterations = math.trunc(math.log2(len(training_data_X)))
     print("sweeping exponentially 2^n up to n={}".format(iterations))
@@ -142,9 +142,12 @@ def paralleized_data_sweep(clf, name, training_data_X, training_data_Y, num_thre
                 done = truncated = False
                 obs, info = env.reset()
                 while not (done or truncated):
-                    inner = list(itertools.chain.from_iterable(obs))
-                    #print(len(list(itertools.chain.from_iterable(inner))))
-                    action = clf.predict([list(itertools.chain.from_iterable(inner))])
+                    inner = [list(itertools.chain.from_iterable(obs))]
+                    
+
+                    
+                    action = clf.predict(inner)
+                    
                     obs, reward, done, truncated, info = env.step(action)
 
                 #env.render()
