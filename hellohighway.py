@@ -25,6 +25,18 @@ def create_csv(path, data):
     return path
 
 
+# Reads csv file of logged data
+def read_csv(path):
+    data = []
+    
+    with open(path+".csv", 'r', newline='') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            data.append(row)
+            
+    return data
+
+
 # Sets up save/data paths
 def set_path(model_name, scenario_name):
     model_path = f"./{model_name}/{scenario_name}/"
@@ -113,7 +125,7 @@ def train_model(model_name, scenario_name):
 
 
 # Loads and tests saved model
-def test_model(model_name, scenario_name, save_path, log_path, episodes=100):
+def test_model(model_name, scenario_name, save_path, log_path, episodes=100, render=False, test_csv=None):
     if model_name == "dqn":
         model = DQN.load(save_path)
     elif model_name == "ppo":
@@ -127,30 +139,48 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=100):
     mean_reward = 0.0
     reward_data = []
     
-    for ep in range(episodes):
-        done = truncated = False
-        obs, info = env.reset()
-        c = 0
-        while not (done or truncated):
-            
-            # TODO: Use test data to evaluate model
-            # 0) Load test data from JSON file
-            # 1) Create numpy array using test data for each input
-            # 2) Predict action using model.predict()
-            # 3) Use action to step through environment
-            # 4) Repeat until done or truncated
-
-            # print("ep: ", ep, "\tstep: ", c, "\tobservation: ", obs)
-            c += 1
-
-            action, _states = model.predict(obs, deterministic=True)
-            obs, reward, done, truncated, info = env.step(action)
-            env.render()
+    if test_csv:
+        test_data = read_csv(log_path+test_csv)
         
-        sum_reward += reward
-        mean_reward = sum_reward/(ep+1)
-        # print("ep=", ep, "\tep_reward=", reward, "\t mean_reward=", mean_reward)
-        reward_data.append([ep, reward, mean_reward])
+        for ep in test_data:
+            done = truncated = False
+            obs = ep
+            
+            while not (done or truncated):
+                action, _states = model.predict(obs, deterministic=True)
+                obs, reward, done, truncated = env.step(action)
+                
+                if render:
+                    env.render()
+            
+            sum_reward += reward
+            mean_reward = sum_reward/(ep+1)
+            # print("ep=", ep, "\tep_reward=", reward, "\t mean_reward=", mean_reward)
+            reward_data.append([ep, reward, mean_reward])
+        
+    else:
+        for ep in range(episodes):
+            done = truncated = False
+            obs, info = env.reset()
+
+            while not (done or truncated):
+                
+                # TODO: Use test data to evaluate model
+                # 0) Load test data from JSON file
+                # 1) Create numpy array using test data for each input
+                # 2) Predict action using model.predict()
+                # 3) Use action to step through environment
+                # 4) Repeat until done or truncated
+                action, _states = model.predict(obs, deterministic=True)
+                obs, reward, done, truncated, info = env.step(action)
+                
+                if render:
+                    env.render()
+            
+            sum_reward += reward
+            mean_reward = sum_reward/(ep+1)
+            # print("ep=", ep, "\tep_reward=", reward, "\t mean_reward=", mean_reward)
+            reward_data.append([ep, reward, mean_reward])
 
     env.close()
     
@@ -160,13 +190,15 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=100):
 
 
 def main():
-    # To run specific models/scenarios, uncomment the following lines 
-    model_trained, save_path, log_path = train_model(model_type[0], scenario_type[0]) #commented out to test w/o o/w trained models
-    model_path, log_path, save_path = set_path(model_type[0], scenario_type[0])         #added to test w/o o/w trained models
-    test_model(model_type[0], scenario_type[0], save_path, log_path, episodes=100)
+    # To run specific models/scenarios, uncomment the following lines:
+    # model_trained, save_path, log_path = train_model(model_type[0], scenario_type[0])   #commented out to test w/o o/w trained models
+    model_path, log_path, save_path = set_path(model_type[0], scenario_type[1])         #added to test w/o o/w trained models
+    # test_model(model_type[0], scenario_type[0], save_path, log_path, episodes=100)
+    test_model(model_type[0], scenario_type[1], save_path, log_path, episodes=100, render=False, 
+               test_csv='data_merge_test')
     print("complete!")
     
-    # To run all the models and scenarios, uncomment the following lines
+    # To run all the models and scenarios, uncomment the following lines:
     # start_all_time = time.time()
     # for model in model_type:
     #     for scenario in scenario_type:
