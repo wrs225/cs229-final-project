@@ -38,8 +38,6 @@ env = gym.make("merge-v0", render_mode='rgb_array')
 
 
 env.configure({
-  "observation":{"type":"OccupancyGrid",
-                 "features": ["presence", "vx", "vy",]},
   "action":{"type":"DiscreteMetaAction"},
   "simulation_frequency": 20
 })
