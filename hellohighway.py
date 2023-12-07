@@ -147,33 +147,43 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=100, ren
     if test_csv:
         test_data = read_csv(log_path+test_csv)
         # print("test_data=", test_data, "\tlen=", len(test_data), "datatype=", type(test_data))
-        
-        for ep in test_data:
+        ep = 0
+
+        for data in test_data:
             done = truncated = False
-            obs = np.fromstring(ep[0], dtype=float, sep=' ')
-            print("ep=", ep, "\tobs_init=", obs, "\tlen=", len(obs), "datatype=", type(obs))
+            obs, info = env.reset()
+            obs = np.fromstring(data[0], dtype=float, sep=' ')
             obs = np.array(obs[1:26]).reshape(5, 5)
+            # print("ep=", ep, "\tobs_init=", obs, "\tlen=", len(obs), "datatype=", type(obs))
             
-            obs = env.reset()
+            ep += 1
             
             while not (done or truncated):
-                action, _states = model.predict(obs, deterministic=True)
-                obs, reward, done, truncated = env.step(action)
-                print("ep=", ep, "\tobs=", obs)
-                
+                action, states = model.predict(obs, deterministic=True)
+
+                # print("ep=", ep, "\taction=", action)
+                # time.sleep(1)
+
+                obs, reward, done, truncated, info = env.step(action)
+
+                # print("ep=", ep, "\tobs=", obs)
+                # time.sleep(1)
+
                 if render:
                     env.render()
             
             sum_reward += reward
             mean_reward = sum_reward/(ep+1)
-            # print("ep=", ep, "\tep_reward=", reward, "\t mean_reward=", mean_reward)
+            print("ep=", ep, "\tep_reward=", reward, "\t mean_reward=", mean_reward)
             reward_data.append([ep, reward, mean_reward])
-        
+
+            if ep > 100:
+                break
+            
     else:
         for ep in range(episodes):
             done = truncated = False
             obs, info = env.reset()
-            print("\tobs_init=", obs)
 
             while not (done or truncated):
                 
@@ -183,10 +193,16 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=100, ren
                 # 2) Predict action using model.predict()
                 # 3) Use action to step through environment
                 # 4) Repeat until done or truncated
-                action, _states = model.predict(obs, deterministic=True)
+                action, states = model.predict(obs, deterministic=True)
+                
+                # print("ep=", ep, "\taction=", action)
+                # time.sleep(1)
+
                 obs, reward, done, truncated, info = env.step(action)
-                print("ep=", ep, "\tobs=", obs)
+                
+                # print("ep=", ep, "\tobs=", obs)
                 # time.sleep(0.5)
+                
                 if render:
                     env.render()
             
