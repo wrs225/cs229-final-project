@@ -165,20 +165,20 @@ def parallelized_data_sweep(clf, name, training_data_X, training_data_Y, num_thr
 
             reward_sum = sum(list(tqdm.tqdm(p.imap_unordered(parallelized_simulaton,ep), total=len(ep))))
         
-        output_reward[i] = reward_sum/NUM_EPOCHS
+        output_reward[i-starting_datas] = reward_sum/NUM_EPOCHS
         file = open('{}_data.csv'.format(name), 'a', newline='')
         writer = csv.writer(file,delimiter=' ', quotechar='|')
-        writer.writerow([2**i,train_accuracy,output_reward[i]])
+        writer.writerow([2**i,train_accuracy,output_reward[i-starting_datas]])
         file.close()
 
         print("{} trained with accuracy {} on training set".format(name, train_accuracy))
-        print("testing competed with an average reward of {} over {} simulations".format(reward_sum / NUM_EPOCHS, NUM_EPOCHS))
+        print("testing completed with an average reward of {} over {} simulations".format(reward_sum / NUM_EPOCHS, NUM_EPOCHS))
 
     return output_data_points, output_reward
 
 
 if __name__ == "__main__":
     #print('here')
-    #convert_json_to_csv('data_highway_fast_v0','data_highway_fast.csv')
-    #extract_test_data('data_highway_fast_v0','data_highway_fast.csv','data_highway_test.csv')
+    convert_json_to_csv('data_highway_fast_v0','data_highway_fast.csv')
+    extract_test_data('data_highway_fast_v0','data_highway_fast.csv','data_highway_test.csv')
     pass
