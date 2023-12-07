@@ -15,8 +15,8 @@ scenario_type = ["highway-fast-v0", 'merge-v0', 'roundabout-v0', 'intersection-v
 
 
 # Creates csv file for logged data
-def create_csv(path, data):
-    with open(path+".csv", 'w', newline='') as file:
+def create_csv(path, name, data):
+    with open(path+name+".csv", 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["episode", "reward", "mean_reward"])
         
@@ -155,9 +155,7 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=100, ren
             obs = np.fromstring(data[0], dtype=float, sep=' ')
             obs = np.array(obs[1:26]).reshape(5, 5)
             # print("ep=", ep, "\tobs_init=", obs, "\tlen=", len(obs), "datatype=", type(obs))
-            
-            ep += 1
-            
+                        
             while not (done or truncated):
                 action, states = model.predict(obs, deterministic=True)
 
@@ -177,9 +175,11 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=100, ren
             print("ep=", ep, "\tep_reward=", reward, "\t mean_reward=", mean_reward)
             reward_data.append([ep, reward, mean_reward])
 
+            ep += 1
+
             if ep > 100:
                 break
-            
+
     else:
         for ep in range(episodes):
             done = truncated = False
@@ -213,7 +213,7 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=100, ren
 
     env.close()
     
-    csv_save_path = create_csv(log_path, reward_data)
+    csv_save_path = create_csv(log_path, "test_res", reward_data)
     
     return csv_save_path
 
