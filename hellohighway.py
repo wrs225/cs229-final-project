@@ -130,7 +130,7 @@ def train_model(model_name, scenario_name):
 
 
 # Loads and tests saved model
-def test_model(model_name, scenario_name, save_path, log_path, episodes=100, render=False, test_csv=None):
+def test_model(model_name, scenario_name, save_path, log_path, episodes=200, render=False, test_csv=None):
     if model_name == "dqn":
         model = DQN.load(save_path)
     elif model_name == "ppo":
@@ -177,7 +177,7 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=100, ren
 
             ep += 1
 
-            if ep > 100:
+            if ep > episodes:
                 break
 
     else:
@@ -222,10 +222,8 @@ def main():
     # To run specific models/scenarios, uncomment the following lines:
     # model_trained, save_path, log_path = train_model(model_type[0], scenario_type[0])   #commented out to test w/o o/w trained models
     model_path, log_path, save_path = set_path(model_type[0], scenario_type[1])         #added to test w/o o/w trained models
-    # test_model(model_type[0], scenario_type[0], save_path, log_path, episodes=100)
-    test_model(model_type[0], scenario_type[1], save_path, log_path, episodes=100, render=False, 
-               test_csv='data_merge_test')
-    # test_model(model_type[0], scenario_type[1], save_path, log_path, episodes=100, render=True)
+    # test_model(model_type[0], scenario_type[1], save_path, log_path, episodes=100, render=True) #added to test on random test data
+    test_model(model_type[0], scenario_type[0], save_path, log_path, render=False, test_csv='data_merge_test')  #added to test on specific test data
     print("complete!")
     
     # To run all the models and scenarios, uncomment the following lines:
