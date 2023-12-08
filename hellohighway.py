@@ -146,6 +146,7 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=200, ren
     
     if test_csv:
         test_data = read_csv(log_path+test_csv)
+        print("Running test on ", test_csv, "...")
         # print("test_data=", test_data, "\tlen=", len(test_data), "datatype=", type(test_data))
         ep = 0
 
@@ -181,18 +182,12 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=200, ren
                 break
 
     else:
+        print("Running test on ", episodes, " episodes...")
         for ep in range(episodes):
             done = truncated = False
             obs, info = env.reset()
 
             while not (done or truncated):
-                
-                # TODO: Use test data to evaluate model
-                # 0) Load test data from JSON file
-                # 1) Create numpy array using test data for each input
-                # 2) Predict action using model.predict()
-                # 3) Use action to step through environment
-                # 4) Repeat until done or truncated
                 action, states = model.predict(obs, deterministic=True)
                 
                 # print("ep=", ep, "\taction=", action)
@@ -214,7 +209,8 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=200, ren
     env.close()
     
     csv_save_path = create_csv(log_path, "test_res", reward_data)
-    
+    print("------- Test results saved to %s -------" % csv_save_path)
+
     return csv_save_path
 
 
