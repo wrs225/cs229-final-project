@@ -129,7 +129,7 @@ def paralleized_data_sweep(clf, name, training_data_X, training_data_Y, num_thre
 
         def parallelized_simulaton(e):
         
-            env = gym.make("highway-fast-v0", config= {
+            env = gym.make("merge-v0", config= {
                 "observation":{"type":"OccupancyGrid",
                                "features": ["presence", "vx", "vy",]},
               "action":{"type":"DiscreteMetaAction"},

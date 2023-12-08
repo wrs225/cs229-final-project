@@ -64,7 +64,7 @@ if(False):
 
 if __name__ == "__main__":
     NUM_THREADS = 8
-    ccp_alphas = [0.001]
+    ccp_alphas = [0.001] # 0.005 is highest reward
     max_depths = [None] # [5, 10] not good enough, needs further testing
     min_samples_splits = [2] # 5, 10 did not perform as well, sci-kts default is 2 and it performed the best
     min_samples_leafs = [1] # tested [2, 4], but no effect really. Sci-kit reccomends 1
@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
                     # Existing code for training and testing the model remains unchanged
                     results = utils.parallelized_data_sweep(clf, "basic_decision_tree", training_data_X, training_data_Y, NUM_THREADS, starting_datas=10)
-                    # plt.plot(results); plt.show()
+                    # plt.plot(results[0],results[1]); plt.show()
 
                     # Evaluate the model on the test set
                     test_accuracy = clf.score(test_data_X, test_data_Y)
