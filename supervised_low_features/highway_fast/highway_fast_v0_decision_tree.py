@@ -62,7 +62,7 @@ if(False):
   ax.legend()
   plt.show()
 
-clf = tree.DecisionTreeClassifier(class_weight="balanced",ccp_alpha=0.0002)
-results = utils.parallelized_data_sweep(clf, "basic_decision_tree", training_data_X, training_data_Y, NUM_THREADS, starting_datas = 10)
+clf = tree.DecisionTreeClassifier(class_weight="balanced",ccp_alpha=0.002)
+results = utils.parallelized_data_sweep(clf, "basic_decision_tree", training_data_X, training_data_Y, NUM_THREADS, starting_datas = 13)
 
 plt.plot(results)

@@ -1,6 +1,6 @@
 from sklearn import tree
 from sympy import true
-import utils_highway as utils
+import utils_merge as utils
 import matplotlib.pyplot as plt
 import tqdm
 import numpy as np
@@ -31,8 +31,10 @@ from multiprocess import Pool
 # clf = tree.DecisionTreeClassifier(class_weight="balanced", ccp_alpha=your_value)
 # clf.fit(training_data_X_selected, training_data_Y)
 
-if(True):
+if(False):
   clf = tree.DecisionTreeClassifier(class_weight="balanced")
+  training_data_X, training_data_Y = utils.read_data_csv('data_merge_v0','data_merge.csv')
+  test_data_X, test_data_Y = utils.read_data_csv('data_merge_v0','data_merge_test.csv')
 
   path = clf.cost_complexity_pruning_path(training_data_X, training_data_Y)
   ccp_alphas, impurities = path.ccp_alphas[:-1:len(path.ccp_alphas)//15], path.impurities
@@ -60,6 +62,6 @@ if __name__ == "__main__":
    NUM_THREADS = 6 #Change this according to how many threads you can spare
    training_data_X, training_data_Y = utils.read_data_csv('data_merge_v0','data_merge.csv')
    test_data_X, test_data_Y = utils.read_data_csv('data_merge_v0','data_merge_test.csv')
-   clf = tree.DecisionTreeClassifier(class_weight="balanced",ccp_alpha=0.0002)
+   clf = tree.DecisionTreeClassifier(class_weight="balanced",ccp_alpha=0.002)
    results = utils.parallelized_data_sweep(clf, "basic_decision_tree", training_data_X, training_data_Y, NUM_THREADS, starting_datas = 10)
    plt.plot(results)

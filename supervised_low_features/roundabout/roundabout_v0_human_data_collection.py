@@ -38,10 +38,10 @@ env = gym.make("roundabout-v0", render_mode='rgb_array')
 
 
 env.configure({
-  "observation":{"type":"OccupancyGrid",
-                 "features": ["presence", "vx", "vy",]},
+
   "action":{"type":"DiscreteMetaAction"},
-  "simulation_frequency": 20
+  "simulation_frequency": 20,
+  "duration": 4
 })
 
 listener = keyboard.Listener(on_press = lambda event: determine_pressed_arrow(event, KeyObj), on_release= lambda event: on_release(event, KeyObj))

@@ -108,14 +108,14 @@ def convert_json_to_csv(folder_name, file_name, reward_coef = 0.7):
     np.savetxt(os.path.join(os.path.join(os.getcwd(), folder_name),file_name),
                np.column_stack( (np.array(training_data_X), np.array(training_data_Y)) ) )
     
-def parallelized_data_sweep(clf, name, training_data_X, training_data_Y, num_threads,starting_datas=4):
+def parallelized_data_sweep(clf, name, training_data_X, training_data_Y, test_data_X, test_data_Y, num_threads,starting_datas=4):
     train_example_sweep_iterator = 0
     iterations = math.trunc(math.log2(len(training_data_X)))
     print("sweeping exponentially 2^n up to n={}".format(iterations))
 
     file = open('{}_data.csv'.format(name), 'w', newline='')
     writer = csv.writer(file,delimiter=' ', quotechar='|')
-    writer.writerow(['data_points','training_accuracy','simulation_reward'])
+    writer.writerow(['data_points','training_accuracy','simulation_reward', 'test_accuracy'])
     file.close()
 
     output_data_points = np.array(range(starting_datas,iterations+1))
@@ -127,6 +127,8 @@ def parallelized_data_sweep(clf, name, training_data_X, training_data_Y, num_thr
 
         train_accuracy = clf.score(training_data_X[0:2**i],training_data_Y[0:2**i])
         print("{} trained with accuracy {} on training set".format(name, train_accuracy))
+        test_accuracy = clf.score(test_data_X, test_data_Y)
+        print("{} trained with accuracy {} on TEST set".format(name, test_accuracy))
 
 
         NUM_EPOCHS = 1000
@@ -165,19 +167,28 @@ def parallelized_data_sweep(clf, name, training_data_X, training_data_Y, num_thr
 
             reward_sum = sum(list(tqdm.tqdm(p.imap_unordered(parallelized_simulaton,ep), total=len(ep))))
         
-        output_reward[i] = reward_sum/NUM_EPOCHS
+<<<<<<< HEAD
+        output_reward[i - starting_datas] = reward_sum/NUM_EPOCHS
         file = open('{}_data.csv'.format(name), 'a', newline='')
         writer = csv.writer(file,delimiter=' ', quotechar='|')
-        writer.writerow([2**i,train_accuracy,output_reward[i]])
+        writer.writerow([2**i,train_accuracy,output_reward[i - starting_datas], test_accuracy])
+=======
+        output_reward[i-starting_datas] = reward_sum/NUM_EPOCHS
+        file = open('{}_data.csv'.format(name), 'a', newline='')
+        writer = csv.writer(file,delimiter=' ', quotechar='|')
+        writer.writerow([2**i,train_accuracy,output_reward[i-starting_datas]])
+>>>>>>> cc821769c6bfafd5287013fa6fc94e9e66401c9b
         file.close()
 
         print("{} trained with accuracy {} on training set".format(name, train_accuracy))
-        print("testing competed with an average reward of {} over {} simulations".format(reward_sum / NUM_EPOCHS, NUM_EPOCHS))
+        print("testing completed with an average reward of {} over {} simulations".format(reward_sum / NUM_EPOCHS, NUM_EPOCHS))
+
+    return output_data_points, output_reward
 
     return output_data_points, output_reward
 
 
 if __name__ == "__main__":
-    convert_json_to_csv('data_merge_v0','data_merge.csv')
-    extract_test_data('data_merge_v0','data_merge.csv','data_merge_test.csv')
+    #convert_json_to_csv('data_merge_v0','data_merge.csv')
+    #extract_test_data('data_merge_v0','data_merge.csv','data_merge_test.csv')
     pass

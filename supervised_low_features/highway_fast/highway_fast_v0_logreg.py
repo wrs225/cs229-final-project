@@ -9,7 +9,7 @@ import itertools
 import graphviz
 from sklearn import svm
 from sklearn.linear_model import LogisticRegression
-import utils
+import supervised_low_features.highway_fast.utils as utils
 
 now = datetime.now()
 

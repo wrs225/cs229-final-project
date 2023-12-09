@@ -1,4 +1,4 @@
-import utils
+import utils_merge as utils
 import matplotlib.pyplot as plt
 import tqdm
 import numpy as np
@@ -10,12 +10,12 @@ from sklearn.svm import SVC
 
 NUM_THREADS = 8 #Change this according to how many threads you can spare
 
-training_data_X, training_data_Y = utils.read_data_csv('data_merge_v0','data_merge.csv')
+training_data_X, training_data_Y = utils.read_data_csv('data_merge_v0','data_merge_train.csv')
 test_data_X, test_data_Y = utils.read_data_csv('data_merge_v0','data_merge_test.csv')
 
 
 clf = make_pipeline(StandardScaler(),SVC(class_weight="balanced",cache_size = 1000))
-results = utils.paralleized_data_sweep(clf, "svm_sigmoid", training_data_X, training_data_Y, NUM_THREADS, starting_datas = 10)
+results = utils.parallelized_data_sweep(clf, "svm_sigmoid", training_data_X, training_data_Y, test_data_X, test_data_Y, NUM_THREADS, starting_datas = 4)
 
 plt.plot(results[0],results[1])
 plt.show()

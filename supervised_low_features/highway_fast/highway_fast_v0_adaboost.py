@@ -1,5 +1,5 @@
 from sklearn import tree
-import utils
+import supervised_low_features.highway_fast.utils as utils
 import matplotlib.pyplot as plt
 import tqdm
 import numpy as np

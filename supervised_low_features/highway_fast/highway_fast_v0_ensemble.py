@@ -8,7 +8,7 @@ import os
 import itertools
 import graphviz
 from sklearn.ensemble import HistGradientBoostingClassifier
-import utils
+import supervised_low_features.highway_fast.utils as utils
 
 now = datetime.now()
 

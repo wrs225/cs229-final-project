@@ -39,7 +39,7 @@ env = gym.make("merge-v0", render_mode='rgb_array')
 
 env.configure({
   "action":{"type":"DiscreteMetaAction"},
-  "simulation_frequency": 20
+  "simulation_frequency": 40
 })
 
 listener = keyboard.Listener(on_press = lambda event: determine_pressed_arrow(event, KeyObj), on_release= lambda event: on_release(event, KeyObj))

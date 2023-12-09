@@ -104,14 +104,14 @@ def convert_json_to_csv(folder_name, file_name, reward_coef = 0.7):
     np.savetxt(os.path.join(os.path.join(os.getcwd(), folder_name),file_name),
                np.column_stack( (np.array(training_data_X), np.array(training_data_Y)) ) )
     
-def paralleized_data_sweep(clf, name, training_data_X, training_data_Y, num_threads,starting_datas=4):
+def paralleized_data_sweep(clf, name, training_data_X, training_data_Y, test_data_X, test_data_Y num_threads,starting_datas=4):
     train_example_sweep_iterator = 0
     iterations = math.trunc(math.log2(len(training_data_X)))
     print("sweeping exponentially 2^n up to n={}".format(iterations))
 
     file = open('{}_data.csv'.format(name), 'w', newline='')
     writer = csv.writer(file,delimiter=' ', quotechar='|')
-    writer.writerow(['data_points','training_accuracy','simulation_reward'])
+    writer.writerow(['data_points','training_accuracy','simulation_reward', 'test_accuracy'])
     file.close()
 
     output_data_points = np.array(range(starting_datas,iterations+1))
@@ -123,13 +123,15 @@ def paralleized_data_sweep(clf, name, training_data_X, training_data_Y, num_thre
 
         train_accuracy = clf.score(training_data_X[0:2**i],training_data_Y[0:2**i])
         print("{} trained with accuracy {} on training set".format(name, train_accuracy))
-
+        
+        test_accuracy = clf.score(test_data_X, test_data_Y)
+        print("resulting test accuracy is: {}".format(test_accuracy))
 
         NUM_EPOCHS = 1000
 
         def parallelized_simulaton(e):
         
-            env = gym.make("highway-fast-v0", config= {
+            env = gym.make("merge-v0", config= {
                 "observation":{"type":"OccupancyGrid",
                                "features": ["presence", "vx", "vy",]},
               "action":{"type":"DiscreteMetaAction"},
@@ -164,7 +166,7 @@ def paralleized_data_sweep(clf, name, training_data_X, training_data_Y, num_thre
         output_reward[i - starting_datas] = reward_sum/NUM_EPOCHS
         file = open('{}_data.csv'.format(name), 'a', newline='')
         writer = csv.writer(file,delimiter=' ', quotechar='|')
-        writer.writerow([2**i,train_accuracy,output_reward[i - starting_datas]])
+        writer.writerow([2**i,train_accuracy,output_reward[i - starting_datas], test_accuracy])
         file.close()
 
         print("{} trained with accuracy {} on training set".format(name, train_accuracy))

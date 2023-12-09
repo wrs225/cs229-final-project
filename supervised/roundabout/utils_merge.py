@@ -130,7 +130,7 @@ def parallelized_data_sweep(clf, name, training_data_X, training_data_Y, num_thr
                 "observation":{"type":"OccupancyGrid",
                                "features": ["presence", "vx", "vy",]},
               "action":{"type":"DiscreteMetaAction"},
-              "simulation_frequency": 5
+              "simulation_frequency": 10
             })
 
 
@@ -146,7 +146,7 @@ def parallelized_data_sweep(clf, name, training_data_X, training_data_Y, num_thr
                     action = clf.predict([list(itertools.chain.from_iterable(inner))])
                     obs, reward, done, truncated, info = env.step(action)
 
-                #env.render()
+                    env.render()
                 reward_sum += reward
                 epochs += 1
 
@@ -158,10 +158,10 @@ def parallelized_data_sweep(clf, name, training_data_X, training_data_Y, num_thr
 
             reward_sum = sum(list(tqdm.tqdm(p.imap_unordered(parallelized_simulaton,ep), total=len(ep))))
         
-        output_reward[i] = reward_sum/NUM_EPOCHS
+        output_reward[i - starting_datas] = reward_sum/NUM_EPOCHS
         file = open('{}_data.csv'.format(name), 'a', newline='')
         writer = csv.writer(file,delimiter=' ', quotechar='|')
-        writer.writerow([2**i,train_accuracy,output_reward[i]])
+        writer.writerow([2**i,train_accuracy,output_reward[i - starting_datas]])
         file.close()
 
         print("{} trained with accuracy {} on training set".format(name, train_accuracy))
