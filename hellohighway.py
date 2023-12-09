@@ -211,7 +211,7 @@ def main():
     # model_trained, save_path, log_path = train_model(model_type[0], scenario_type[0])   #commented out to test w/o o/w trained models
     model_path, log_path, save_path = set_path(model_type[1], scenario_type[2])         #added to test w/o o/w trained models
     # test_model(model_type[1], scenario_type[2], save_path, log_path, episodes=100, render=True) #added to test on random test data
-    test_model(model_type[1], scenario_type[2], save_path, log_path, render=False, test_csv='data_roundabout_test', episodes=10000)  #added to test on specific test data
+    test_model(model_type[1], scenario_type[2], save_path, log_path, render=False, test_csv='data_roundabout_test', episodes=1000)  #added to test on specific test data
     print("complete!")
     
     # To run all the models and scenarios, uncomment the following lines:
