@@ -147,39 +147,38 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=200, ren
     if test_csv:
         test_data = read_csv(log_path+test_csv)
         print("Running test on ", test_csv, "...")
-        # print("test_data=", test_data, "\tlen=", len(test_data), "datatype=", type(test_data))
         ep = 0
+        epoch = 0
 
         for data in test_data:
-            done = truncated = False
-            obs, info = env.reset()
-            obs = np.fromstring(data[0], dtype=float, sep=' ')
-            obs = np.array(obs[1:26]).reshape(5, 5)
-            # print("ep=", ep, "\tobs_init=", obs, "\tlen=", len(obs), "datatype=", type(obs))
-                        
-            while not (done or truncated):
-                action, states = model.predict(obs, deterministic=True)
 
-                # print("ep=", ep, "\taction=", action)
-                # time.sleep(1)
+            if ep % 10 == 0:
 
-                obs, reward, done, truncated, info = env.step(action)
+                done = truncated = False
+                obs, info = env.reset()
+                obs = np.fromstring(data[0], dtype=float, sep=' ')
+                obs = np.array(obs[1:26]).reshape(5, 5)
+                epoch += 1
+                            
+                while not (done or truncated):
+                    action, states = model.predict(obs, deterministic=True)
+                    obs, reward, done, truncated, info = env.step(action)
 
-                # print("ep=", ep, "\tobs=", obs)
-                # time.sleep(1)
+                    if render:
+                        env.render()
+                
+                sum_reward += reward
+                mean_reward = sum_reward/(epoch)
 
-                if render:
-                    env.render()
+                print("ep=", ep, "\tep_reward=", reward, "\t mean_reward=", mean_reward)
             
-            sum_reward += reward
-            mean_reward = sum_reward/(ep+1)
-            print("ep=", ep, "\tep_reward=", reward, "\t mean_reward=", mean_reward)
-            reward_data.append([ep, reward, mean_reward])
-
             ep += 1
 
             if ep > episodes:
+                reward_data.append([ep, reward, mean_reward])
                 break
+
+        reward_data.append([ep, reward, mean_reward])
 
     else:
         print("Running test on ", episodes, " episodes...")
@@ -189,20 +188,13 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=200, ren
 
             while not (done or truncated):
                 action, states = model.predict(obs, deterministic=True)
-                
-                # print("ep=", ep, "\taction=", action)
-                # time.sleep(1)
-
                 obs, reward, done, truncated, info = env.step(action)
-                
-                # print("ep=", ep, "\tobs=", obs)
-                # time.sleep(0.5)
                 
                 if render:
                     env.render()
             
             sum_reward += reward
-            mean_reward = sum_reward/(ep+1)
+            mean_reward = sum_reward/(ep)
             # print("ep=", ep, "\tep_reward=", reward, "\t mean_reward=", mean_reward)
             reward_data.append([ep, reward, mean_reward])
 
@@ -217,9 +209,9 @@ def test_model(model_name, scenario_name, save_path, log_path, episodes=200, ren
 def main():
     # To run specific models/scenarios, uncomment the following lines:
     # model_trained, save_path, log_path = train_model(model_type[0], scenario_type[0])   #commented out to test w/o o/w trained models
-    model_path, log_path, save_path = set_path(model_type[0], scenario_type[1])         #added to test w/o o/w trained models
-    # test_model(model_type[0], scenario_type[1], save_path, log_path, episodes=100, render=True) #added to test on random test data
-    test_model(model_type[0], scenario_type[0], save_path, log_path, render=False, test_csv='data_merge_test')  #added to test on specific test data
+    model_path, log_path, save_path = set_path(model_type[1], scenario_type[2])         #added to test w/o o/w trained models
+    # test_model(model_type[1], scenario_type[2], save_path, log_path, episodes=100, render=True) #added to test on random test data
+    test_model(model_type[1], scenario_type[2], save_path, log_path, render=False, test_csv='data_roundabout_test', episodes=10000)  #added to test on specific test data
     print("complete!")
     
     # To run all the models and scenarios, uncomment the following lines:
