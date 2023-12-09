@@ -167,23 +167,14 @@ def parallelized_data_sweep(clf, name, training_data_X, training_data_Y, test_da
 
             reward_sum = sum(list(tqdm.tqdm(p.imap_unordered(parallelized_simulaton,ep), total=len(ep))))
         
-<<<<<<< HEAD
         output_reward[i - starting_datas] = reward_sum/NUM_EPOCHS
         file = open('{}_data.csv'.format(name), 'a', newline='')
         writer = csv.writer(file,delimiter=' ', quotechar='|')
         writer.writerow([2**i,train_accuracy,output_reward[i - starting_datas], test_accuracy])
-=======
-        output_reward[i-starting_datas] = reward_sum/NUM_EPOCHS
-        file = open('{}_data.csv'.format(name), 'a', newline='')
-        writer = csv.writer(file,delimiter=' ', quotechar='|')
-        writer.writerow([2**i,train_accuracy,output_reward[i-starting_datas]])
->>>>>>> cc821769c6bfafd5287013fa6fc94e9e66401c9b
         file.close()
 
         print("{} trained with accuracy {} on training set".format(name, train_accuracy))
-        print("testing completed with an average reward of {} over {} simulations".format(reward_sum / NUM_EPOCHS, NUM_EPOCHS))
-
-    return output_data_points, output_reward
+        print("testing competed with an average reward of {} over {} simulations".format(reward_sum / NUM_EPOCHS, NUM_EPOCHS))
 
     return output_data_points, output_reward
 
