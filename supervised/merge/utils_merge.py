@@ -174,7 +174,9 @@ def parallelized_data_sweep(clf, name, training_data_X, training_data_Y, test_da
         file.close()
 
         print("{} trained with accuracy {} on training set".format(name, train_accuracy))
-        print("testing competed with an average reward of {} over {} simulations".format(reward_sum / NUM_EPOCHS, NUM_EPOCHS))
+        print("testing completed with an average reward of {} over {} simulations".format(reward_sum / NUM_EPOCHS, NUM_EPOCHS))
+
+    return output_data_points, output_reward
 
     return output_data_points, output_reward
 
